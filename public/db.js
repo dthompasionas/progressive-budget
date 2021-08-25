@@ -1,25 +1,21 @@
 let db;
-let budgetVersion;
-// Create a new db request for a "budget" database.
-const request = indexedDB.open("BudgetDB", budgetVersion || 21);
-//const request = indexedDB.open("budget", 1);
+const request = indexedDB.open("budget", 1);
 
-request.onupgradeneeded = function(event) {
-  const db = event.target.result;
+request.onupgradeneeded = function (e) {
+  const db = e.target.result;
   db.createObjectStore("pending", { autoIncrement: true });
 };
 
-request.onsuccess = function(event) {
-  db = event.target.result;
+request.onsuccess = function (e) {
+  db = e.target.result;
 
   if (navigator.onLine) {
-    checkDB();
+    checkDatabase();
   }
 };
 
-//if there's an error, show what it is
-request.onerror = function(event) {
-  console.log("Woops! " + event.target.errorCode);
+request.onerror = function (e) {
+  console.log(e.target.errorCode);
 };
 
 function saveRecord(record) {
@@ -29,16 +25,13 @@ function saveRecord(record) {
   store.add(record);
 }
 
-
-function checkDB() {
+function checkDatabase() {
   const transaction = db.transaction(["pending"], "readwrite");
   const store = transaction.objectStore("pending");
   const getAll = store.getAll();
 
-  getAll.onsuccess = function() {
-    console.log(getAll.result)
+  getAll.onsuccess = function () {
     if (getAll.result.length > 0) {
-        console.log(getAll.result)
       fetch("/api/transaction/bulk", {
         method: "POST",
         body: JSON.stringify(getAll.result),
@@ -47,9 +40,9 @@ function checkDB() {
           "Content-Type": "application/json"
         }
       })
-      .then(response => response.json())
+        .then(response => response.json())
         .then(() => {
-       
+     
           const transaction = db.transaction(["pending"], "readwrite");
           const store = transaction.objectStore("pending");
           store.clear();
@@ -57,6 +50,10 @@ function checkDB() {
     }
   };
 }
+function deletePending() {
+  const transaction = db.transaction(["pending"], "readwrite");
+  const store = transaction.objectStore("pending");
+  store.clear();
+}
 
-// listen for app coming back online
 window.addEventListener("online", checkDatabase);
