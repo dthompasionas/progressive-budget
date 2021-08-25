@@ -2,6 +2,9 @@
 
 https://github.com/dthompasionas/progressive-budget
 
+Deployed page: 
+https://progressive-budget3.herokuapp.com/
+
 # Description
 an app to help you keep track of your money.
 
