@@ -1,6 +1,8 @@
 let db;
-
-const request = indexedDB.open("budget", 1);
+let budgetVersion;
+// Create a new db request for a "budget" database.
+const request = indexedDB.open("BudgetDB", budgetVersion || 21);
+//const request = indexedDB.open("budget", 1);
 
 request.onupgradeneeded = function(event) {
   const db = event.target.result;
